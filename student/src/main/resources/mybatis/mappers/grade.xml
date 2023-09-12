@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.student.admin.dao.AdminDAO">
+	<resultMap id="grdResult" type="gradeVO">
+		<result property="studentNO" column="studentNO" />
+		<result property="name" column="name" />
+		<result property="korean" column="korean" />
+		<result property="english" column="english" />
+		<result property="math" column="math" />
+		<result property="history" column="history" />
+		<result property="total" column="total" />
+		<result property="avrg" column="avrg" />
+		<result property="rank" column="rank" />
+	</resultMap>
+	
+	<resultMap id="totalResult" type="totalVO">
+		<result property="t_korean" column="t_korean" />
+		<result property="t_english" column="t_english" />
+		<result property="t_math" column="t_math" />
+		<result property="t_history" column="t_history" />
+		<result property="t_total" column="t_total" />
+		<result property="t_avrg" column="t_avrg" />
+		<result property="t_count" column="t_count" />
+	</resultMap>
+	
+	<resultMap id="memResult" type="memberVO">
+		<result property="id" column="id" />
+		<result property="studentNO" column="studentNO" />
+		<result property="pwd" column="pwd" />
+		<result property="name" column="name" />
+		<result property="email" column="email" />
+		<result property="joinDate" column="joinDate" />
+		<result property="imageFileName" column="imageFileName" />
+	</resultMap>
+
+	<select id="selectAllMemberList" resultMap="memResult">
+		<![CDATA[
+			SELECT id, studentNO, pwd, name, email, joinDate, imageFileName FROM member ORDER BY joinDate DESC
+		]]>
+	</select>
+	
+	<select id="selectAllGradeList" resultMap="grdResult">
+		<![CDATA[
+			SELECT studentNO, name, korean, english, math, history,
+				SUM(korean + english + math + history) as `total`,
+				SUM(korean + english + math + history)/4 as `avrg`,
+				RANK() OVER (ORDER BY SUM(korean + english + math + history)/4 DESC) as `rank`
+				FROM member
+				GROUP BY studentNO
+				ORDER BY `rank`;
+		]]>
+	</select>
+
+	<update id="updateGrade" parameterType="gradeVO">
+		<![CDATA[
+			UPDATE member SET korean=#{korean}, english=#{english}, math=#{math}, history=#{history} WHERE studentNO=#{studentNO}
+		]]>
+	</update>
+	
+	<update id="deleteGrade" parameterType="int">
+		<![CDATA[
+			UPDATE member SET korean=0, english=0, math=0, history=0 WHERE studentNO=#{studentNO}
+		]]>
+	</update>
+
+	<!-- <delete id="deleteGrade" parameterType="int">
+		<![CDATA[
+			DELETE korean, english, math, history FROM member WHERE studentNO=#{studentNO}
+		]]>
+	</delete> -->
+
+	<select id="selectByStdNO" resultType="gradeVO"
+		parameterType="int">
+		<![CDATA[
+			SELECT * FROM member WHERE studentNO=#{studentNO}
+		]]>
+	</select>
+	
+	<select id="selectTotalList" resultType="totalVO">
+		<![CDATA[
+			SELECT AVG(korean) as `t_korean`, 
+				AVG(english) as `t_english`,
+				AVG(math) as `t_math`, 
+				AVG(history) as `t_history`,
+				AVG(korean) + AVG(english) + AVG(math) + AVG(history) as `t_total`,
+				(AVG(korean) + AVG(english) + AVG(math) + AVG(history))/4 as `t_avrg`,
+				COUNT(*) as `t_count`
+				FROM member
+		]]>
+	</select>
+</mapper>

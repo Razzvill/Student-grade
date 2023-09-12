@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.student.member.dao.MemberDAO">
+	<resultMap id="memResult" type="memberVO">
+		<result property="id" column="id" />
+		<result property="studentNO" column="studentNO" />
+		<result property="pwd" column="pwd" />
+		<result property="name" column="name" />
+		<result property="email" column="email" />
+		<result property="joinDate" column="joinDate" />
+		<result property="imageFileName" column="imageFileName" />
+	</resultMap>
+
+	<select id="selectAllMemberList" resultMap="memResult">
+		<![CDATA[
+			SELECT id, studentNO, pwd, name, email, joinDate, imageFileName FROM member ORDER BY joinDate DESC
+		]]>
+	</select>
+
+	<insert id="insertMember" parameterType="java.util.Map">
+		<![CDATA[
+			INSERT INTO member(id, pwd, name, email, imageFileName) VALUES(#{id}, #{pwd}, #{name}, #{email}, #{imageFileName})
+		]]>
+	</insert>
+
+	<update id="updateMember" parameterType="java.util.Map">
+		<![CDATA[
+			UPDATE member SET pwd=#{pwd}, name=#{name}, email=#{email}, imageFileName=#{imageFileName} WHERE id=#{id}
+		]]>
+	</update>
+
+	<delete id="deleteMember" parameterType="String">
+		<![CDATA[
+			DELETE FROM member WHERE id=#{id}
+		]]>
+	</delete>
+
+	<select id="loginById" resultType="memberVO" parameterType="memberVO">
+		<![CDATA[
+			SELECT * FROM member WHERE id=#{id} AND pwd=#{pwd}
+		]]>
+	</select>
+	
+	<select id="selectStdNOById" resultType="int" parameterType="String">
+		<![CDATA[
+			SELECT studentNO FROM member WHERE id=#{id}
+		]]>
+	</select>
+
+	<select id="selectMemberById" resultType="memberVO"
+		parameterType="String">
+		<![CDATA[
+			SELECT * FROM member WHERE id=#{id}
+		]]>
+	</select>
+
+	<select id="selectMemberByPwd" resultMap="memResult"
+		parameterType="String">
+		<![CDATA[
+			SELECT * FROM member WHERE pwd=#{pwd}
+		]]>
+	</select>
+	
+	<select id="selectLike" resultMap="memResult"
+		parameterType="String">
+		<![CDATA[
+			SELECT * FROM member WHERE name like CONCAT('%', #{name}, '%')
+		]]>
+	</select>
+</mapper>
